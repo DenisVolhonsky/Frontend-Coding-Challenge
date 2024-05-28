@@ -1,0 +1,21 @@
+# Must only contain the properties relevant for the table
+fragment PatientOptimized on Patient {
+    # TODO: extend the fragment by the required attributes
+    sex
+}
+
+# Must contain all properties
+fragment Patient on Patient {
+    # TODO extend the patient fragment by the required attributes
+    ...PatientOptimized
+}
+
+# 1. TODO implement the query `ListPatients` that uses the fragment `PatientOptimized`
+
+# 2. TODO implement the query `GetPatient` that fetches a patient for the provided `id`
+
+# 3. TODO implement the mutation `UpdatePatient` that updates a patient object. The backend returns the updated object.
+
+# 4. TODO implement the mutation `DeletePatient` that deletes the patient with the provided `id`. The backend returns the id of the deleted patient.
+
+# 5. TODO implement the mutation `AddPatient` that creates and empty patient object with just the `id` property set. The backend returns this created patient object.

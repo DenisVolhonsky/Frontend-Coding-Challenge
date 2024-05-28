@@ -1,0 +1,86 @@
+# This file was generated. Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+type Address {
+    addition: String
+    city: String
+    houseNumber: String
+    id: ID
+    street: String
+}
+
+type Empty {
+    _: String
+}
+
+type HumanName {
+    firstName: String
+    id: ID
+    lastName: String
+    middleNames: [String]
+    title: String
+}
+
+type Medication {
+    brand: String
+    labeler: String
+    packageCode: String
+    patientId: ID
+    productCode: String
+}
+
+type Mutation {
+    createPatient: Patient
+    deletePatient(id: String): String
+    updatePatient(patient: PatientInput): Patient
+}
+
+type Patient {
+    address: Address
+    dateOfBirth: Date
+    id: ID
+    name: HumanName
+    sex: Sex
+}
+
+type Query {
+    getPatient(id: String!): Patient
+    listPatientMedications(patientId: String!): [Medication]
+    listPatients: [Patient]
+}
+
+enum Sex {
+    Diverse
+    Female
+    Male
+}
+
+scalar Date
+
+input AddressInput {
+    addition: String
+    city: String
+    houseNumber: String
+    id: ID
+    street: String
+}
+
+input HumanNameInput {
+    firstName: String
+    id: ID
+    lastName: String
+    middleNames: [String]
+    title: String
+}
+
+input PatientInput {
+    address: AddressInput
+    dateOfBirth: Date
+    id: ID
+    name: HumanNameInput
+    sex: Sex
+}

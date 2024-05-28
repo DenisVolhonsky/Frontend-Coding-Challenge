@@ -1,0 +1,12 @@
+
+button {
+    background-color: inherit !important;
+}
+
+.ant-btn-primary {
+    background-color: #1a518a !important;
+}
+
+.ant-btn-primary:hover {
+    background-color: #0d396f !important;
+}

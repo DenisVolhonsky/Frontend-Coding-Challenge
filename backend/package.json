@@ -1,0 +1,31 @@
+{
+  "name": "avelios-medical-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Gerald Mahlknecht",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "tsc",
+    "start": "nodemon --watch './**/*.ts' --exec 'node --experimental-specifier-resolution=node --loader ts-node/esm' src/index.ts",
+    "generate": "graphql-codegen --config .codegenconf.ts"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.7.5",
+    "body-parser": "^1.20.2",
+    "express": "^4.18.2",
+    "graphql": "^16.7.1",
+    "http": "^0.0.1-security",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^4.0.1",
+    "@graphql-codegen/typescript": "^3.0.4",
+    "@graphql-codegen/typescript-resolvers": "^3.2.1",
+    "@types/node": "^20.4.1",
+    "nodemon": "^3.0.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.1.6"
+  }
+}

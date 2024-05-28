@@ -1,0 +1,83 @@
+scalar Date
+
+type Empty {
+    _: String
+}
+
+enum Sex {
+    Male
+    Female
+    Diverse
+}
+
+type HumanName {
+    id: ID
+    firstName: String
+    lastName: String
+    title: String
+    middleNames: [String]
+}
+
+input HumanNameInput {
+    id: ID
+    firstName: String
+    lastName: String
+    title: String
+    middleNames: [String]
+}
+
+type Address {
+    id: ID
+    street: String
+    houseNumber: String
+    addition: String
+    city: String
+}
+
+input AddressInput {
+    id: ID
+    street: String
+    houseNumber: String
+    addition: String
+    city: String
+}
+
+type Patient {
+    id: ID
+    name: HumanName
+    dateOfBirth: Date
+    address: Address
+    sex: Sex
+}
+
+input PatientInput {
+    id: ID
+    name: HumanNameInput
+    dateOfBirth: Date
+    address: AddressInput
+    sex: Sex
+}
+
+type Medication {
+    labeler: String
+    productCode: String
+    packageCode: String
+    patientId: ID
+    brand: String
+}
+
+type Query {
+    # Patient
+    listPatients: [Patient]
+    getPatient(id: String!): Patient
+
+    # Medications
+    listPatientMedications(patientId: String!): [Medication]
+}
+
+type Mutation {
+    # Patient
+    createPatient: Patient
+    updatePatient(patient: PatientInput): Patient
+    deletePatient(id: String): String
+}

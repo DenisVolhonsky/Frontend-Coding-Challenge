@@ -1,0 +1,9 @@
+fragment Name on HumanName {
+    id
+    firstName
+    lastName
+    middleNames
+    title
+}
+
+# TODO: Add necessary fragments here
