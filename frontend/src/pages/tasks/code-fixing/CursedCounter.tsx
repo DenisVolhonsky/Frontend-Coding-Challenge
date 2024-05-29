@@ -20,8 +20,8 @@ export const CursedCounter: FC<Task> = (task) => {
    */
   const incr = () => {
     /** Editable Code START **/
-    setCounter(counter + MAGIC_NUMBER);
-    setCounter(counter + MAGIC_NUMBER);
+    setCounter(prevCounter => prevCounter + MAGIC_NUMBER); // I use callback to ensure state updates correctly in sequence
+    setCounter(prevCounter => prevCounter + MAGIC_NUMBER); // I use callback to ensure state updates correctly in sequence
     /** Editable Code END **/
   };
 
@@ -30,8 +30,8 @@ export const CursedCounter: FC<Task> = (task) => {
    */
   const decr = () => {
     /** Editable Code START **/
-    setCounter(counter - MAGIC_NUMBER);
-    setCounter(counter - MAGIC_NUMBER);
+    setCounter(prevCounter => prevCounter - MAGIC_NUMBER); // I use callback to ensure state updates correctly in sequence
+    setCounter(prevCounter => prevCounter - MAGIC_NUMBER); // I use callback to ensure state updates correctly in sequence
     /** Editable Code END **/
   };
 
