@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useEffect, useState, useCallback, useMemo } from "react";
 import { Button } from "antd";
 import { Task } from "@/index";
 import { randomIntArrayInRange, shuffle } from "@/utils/array-utils";
@@ -19,30 +19,38 @@ export const ArraySorting: FC<Task> = (task) => {
   const [someArray, setSomeArray] = useState<number[]>([]);
 
   /** Editable Code START **/
-  const [sortedArray, setSortedArray] = useState<number[]>([]);
 
-  useEffect(() => {
-    someArray.sort();
-    setSortedArray(someArray);
-  }, [someArray]);
+  // I created a new random array function and set it to `someArray`
+  // I wrapped function to useCallback for memoization
+  const createNewRandomArray = useCallback(() => {
+    const newArray = randomIntArrayInRange(12, 1000);
+    setSomeArray(newArray);
+  }, []);
 
-  const createNewRandomArray = () => {
-    const shuffledArray = randomIntArrayInRange(12, 1000);
-    setSomeArray(shuffledArray);
-  };
-
+  // I am calling createNewRandomArray function on page load
   useEffect(() => {
     createNewRandomArray();
   }, []);
+
+  // Memoize sorted array to avoid unnecessary computations on re-renders
+  const sortedArray = useMemo(() => {
+    // I used copy of the array. Original array shouldn't be changed
+    // I use it for predictable results
+    return [...someArray].sort((a, b) => a - b); //
+  }, [someArray]);
 
   /**
    * shuffleArray randomizes the order of the elements in `someArray`.
    * Hint: The implementation of `shuffle` is working and must not be changed.
    */
-  const shuffleArray = () => {
-    const shuffledArray = shuffle(someArray);
+
+  const shuffleArray = useCallback(() => {
+    // React doesn't see state changes
+    // I create a copy of the array before shuffling
+    const shuffledArray = shuffle([...someArray]);
     setSomeArray(shuffledArray);
-  };
+  }, [someArray]);
+
   /** Editable Code END **/
 
   return (
