@@ -1,9 +1,10 @@
-import React, { FC, useState } from "react";
-import { Button, Col, Form, Input, InputProps, Row } from "antd";
+import React, { FC, useState, ChangeEvent } from "react";
+import { Button, Col, Form, Input, Row, Radio } from "antd";
 import { Task } from "@/index";
 import { buildFullName } from "@/utils/formatters";
 import { TaskWrapper } from "@/components/TaskWrapper";
 import { Maybe, NameFragment, Sex } from "@/__generated__/graphql-generated";
+import { RadioChangeEvent } from "antd/es/radio";
 
 /**
  * PART 2: Patients have an attribute `sex`. Your task now is to create an input field that allows for the
@@ -26,7 +27,21 @@ interface SexInputProps {
 }
 
 const SexInput: FC<SexInputProps> = ({ sex, onChange }) => {
-  return <div>TODO</div>;
+  // Handle radio button change and allow deselecting the current value
+  const handleChange = (e: RadioChangeEvent) => {
+    const value: Sex = e.target.value;
+    // If the new value is the same as the current value, set it to null (deselect),
+    // otherwise, set the new value
+    onChange(value === sex ? null : value);
+  };
+
+  return (
+    <Radio.Group onChange={handleChange} value={sex}>
+      <Radio value={"male"}>Male</Radio>
+      <Radio value={"female"}>Female</Radio>
+      <Radio value={"diverse"}>Diverse</Radio>
+    </Radio.Group>
+  );
 };
 /** Editable Code END **/
 
@@ -43,34 +58,37 @@ const SexInput: FC<SexInputProps> = ({ sex, onChange }) => {
  * Write down all steps as comments that lead to your final solution including the problems with the original version.
  */
 export const InputForms: FC<Task> = (task) => {
-
+  
   /** Editable Code START **/
 
-  const [title, setTitle] = useState<string>();
-  const [middleNames, setMiddleNames] = useState<string[]>([]);
-  const [firstName, setFirstName] = useState<string>();
-  const [lastName, setLastName] = useState<string>();
+  // I combined all states into a single state object to 
+  // simplify state management and ensure consistency
+  const [patient, setPatient] = useState<{
+    title?: string;
+    middleNames: string[];
+    firstName?: string;
+    lastName?: string;
+    sex?: Maybe<Sex>;
+  }>({
+    title: "",
+    middleNames: [],
+    firstName: "",
+    lastName: "",
+    sex: null,
+  });
 
-  const updateCredentials: InputProps["onChange"] = (e) => {
-    const value = e.target.value;
-    switch (e.target.name) {
-      case "title":
-        setTitle(value);
-        break;
-      case "firstName":
-        setFirstName(value);
-        break;
-      case "lastName":
-        setLastName(value);
-        break;
-      case "middleNames":
-        setMiddleNames(value.split(" "));
-        break;
-      default:
-        return;
-    }
+  const { firstName, lastName, title, middleNames, sex } = patient;
+
+  // I updated patient state based on input field changes
+  const updateCredentials = (e: ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPatient((prev) => ({
+      ...prev,
+      [name]: name === "middleNames" ? value.split(" ") : value,
+    }));
   };
 
+  // Handle form submission and display an alert with patient details
   const onSubmit = () => {
     const patientName: NameFragment = {
       firstName,
@@ -78,13 +96,13 @@ export const InputForms: FC<Task> = (task) => {
       title,
       middleNames,
     };
-    const sex = null
 
     // Don't change the alert
     alert(`${buildFullName(patientName)} ${sex}`);
   };
 
-  const disabled = false;
+  // I disabled submit button if firstName or lastName is empty
+  const disabled = !firstName || !lastName;
 
   /** Editable Code END **/
 
@@ -131,7 +149,10 @@ export const InputForms: FC<Task> = (task) => {
           <Col span={24}>
             <Form.Item label={"Sex"}>
               {/** Editable Code START **/}
-              <SexInput sex={null} onChange={() => {}} />
+              <SexInput
+                sex={sex}
+                onChange={(sex) => setPatient((prev) => ({ ...prev, sex }))}
+              />
               {/** Editable Code END **/}
             </Form.Item>
           </Col>
