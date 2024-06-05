@@ -1,21 +1,69 @@
 # Must only contain the properties relevant for the table
 fragment PatientOptimized on Patient {
-    # TODO: extend the fragment by the required attributes
-    sex
+  # TODO: extend the fragment by the required attributes
+  sex
 }
 
 # Must contain all properties
 fragment Patient on Patient {
-    # TODO extend the patient fragment by the required attributes
-    ...PatientOptimized
+  # TODO extend the patient fragment by the required attributes
+  ...PatientOptimized
+  id
+  name {
+    id
+    firstName
+    lastName
+    title
+    middleNames
+  }
+  dateOfBirth
 }
 
 # 1. TODO implement the query `ListPatients` that uses the fragment `PatientOptimized`
+query ListPatients {
+  listPatients {
+    ...Patient
+  }
+}
 
 # 2. TODO implement the query `GetPatient` that fetches a patient for the provided `id`
 
+query GetPatient($getPatientId: String!) {
+  getPatient(id: $getPatientId) {
+    ...Patient
+  }
+}
+
 # 3. TODO implement the mutation `UpdatePatient` that updates a patient object. The backend returns the updated object.
 
+mutation UpdatePatient($patient: PatientInput!) {
+  updatePatient(patient: $patient) {
+    id
+    name {
+      firstName
+      lastName
+      title
+    }
+    dateOfBirth
+    sex
+  }
+}
+
 # 4. TODO implement the mutation `DeletePatient` that deletes the patient with the provided `id`. The backend returns the id of the deleted patient.
+mutation DeletePatient($id: String!) {
+  deletePatient(id: $id)
+}
 
 # 5. TODO implement the mutation `AddPatient` that creates and empty patient object with just the `id` property set. The backend returns this created patient object.
+mutation CreatePatient {
+  createPatient {
+    id
+    name {
+      firstName
+      lastName
+      title
+    }
+    dateOfBirth
+    sex
+  }
+}
