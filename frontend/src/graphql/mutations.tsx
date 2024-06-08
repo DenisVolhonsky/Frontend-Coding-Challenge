@@ -2,9 +2,9 @@ import { gql } from "@apollo/client";
 
 // GraphQL mutation to delete a patient
 export const DELETE_PATIENT = gql`
-  mutation DeletePatient($id: ID!) {
-    deletePatient(id: $id)
-  }
+mutation DeletePatient($deletePatientId: String) {
+  deletePatient(id: $deletePatientId)
+}
 `;
 
 // GraphQL mutation to create a patient

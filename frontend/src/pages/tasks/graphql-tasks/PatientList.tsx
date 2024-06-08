@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react";
+import React, { FC, useState, useEffect } from "react";
 import { Task } from "@/index";
 import { Button, notification, Popconfirm, Space, Table } from "antd";
 import { ColumnProps } from "antd/es/table";
@@ -24,10 +24,20 @@ export const PatientList: FC<Task> = (task) => {
   const [patient, setPatient] = useState<Patient | null>(null);
   /** Editable Code START **/
   const [isModalOpen, setIsModalOpen] = useState(false);
-  // Using useQuery to fetch the list of patients
-  const { loading, error, data } = useQuery(LIST_PATIENTS);
+  const [patients, setPatients] = useState<readonly Patient[]>([]);
+  
+  // I added a query to fetch the list of patients from the server.
+  const { loading, error, data, refetch } = useQuery(LIST_PATIENTS, {
+    onCompleted: (data) => {
+      // I added a callback to set the fetched patients into local state.
+      setPatients(data.listPatients);
+    },
+  });
+
+  // I added a mutation to delete a patient from the server.
   const [deletePatient] = useMutation(DELETE_PATIENT, {
     update(cache, { data: { deletePatient } }) {
+      // I added a cache update to remove the deleted patient from the local cache.
       const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
       const newPatients = existingPatients.listPatients.filter(
         (p: Patient) => p.id !== deletePatient.id
@@ -36,65 +46,75 @@ export const PatientList: FC<Task> = (task) => {
         query: LIST_PATIENTS,
         data: { listPatients: newPatients },
       });
+      // I updated the local state to reflect the removal of the patient.
+      setPatients(newPatients);
+      notification.success({ message: "Patient deleted successfully" });
     },
-  });
-
-  const [createPatient] = useMutation(CREATE_PATIENT, {
-    update(cache, { data: { createPatient } }) {
-      const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
-      cache.writeQuery({
-        query: LIST_PATIENTS,
-        data: {
-          listPatients: [...existingPatients.listPatients, createPatient],
-        },
+    onError(err) {
+      notification.error({
+        message: `Failed to delete patient: ${err.message}`,
       });
     },
   });
+
+  // I added a mutation to create a new patient on the server.
+  const [createPatient] = useMutation(CREATE_PATIENT, {
+    update(cache, { data: { createPatient } }) {
+      // I added a cache update to add the new patient to the local cache.
+      const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
+      const newPatients = [...existingPatients.listPatients, createPatient];
+      cache.writeQuery({
+        query: LIST_PATIENTS,
+        data: { listPatients: newPatients },
+      });
+      // I updated the local state to reflect the addition of the new patient.
+      setPatients(newPatients);
+      notification.success({ message: "Patient added successfully" });
+    },
+    onError(err) {
+      notification.error({
+        message: `Failed to add patient: ${err.message}`,
+      });
+    },
+  });
+
+  useEffect(() => {
+    // I added a useEffect to update local state when data changes.
+    if (data) {
+      setPatients(data.listPatients);
+    }
+  }, [data]);
 
   if (loading) return <p>Loading....</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const patients: Maybe<Maybe<Patient>[]> = data?.listPatients
-    ? data?.listPatients
-    : [];
-    
-  // Handle delete operation
   const handleDelete = (patientId: Maybe<string>) => {
-    deletePatient({ variables: { id: patientId } })
+    // I added a handler to delete a patient and refetch the list.
+    deletePatient({ variables: { deletePatientId: patientId } })
       .then(() => {
-        notification.success({ message: "Patient deleted successfully" });
-      })
-      .catch((err) => {
-        notification.error({
-          message: `Failed to delete patient: ${err.message}`,
-        });
+        refetch(); // Refetch the list of patients after deletion
       });
   };
 
-  // Handle edit operation
   const handleEdit = (patient: Patient) => {
+    // I added a handler to set the patient to be edited.
     setPatient(patient);
     setIsModalOpen(true);
   };
 
-  // Handle add operation
   const handleAdd = () => {
-    setPatient(null); // Reset patient to null for adding new patient
+    // I added a handler to prepare the form for adding a new patient.
+    setPatient(null);
     setIsModalOpen(true);
   };
 
-  // Handle save operation (create or update patient)
   const handleSave = (values: any) => {
+    // I added a handler to save a new or edited patient and refetch the list.
     createPatient({ variables: { input: values } })
       .then(() => {
-        notification.success({ message: "Patient added successfully" });
-      })
-      .catch((err) => {
-        notification.error({
-          message: `Failed to add patient: ${err.message}`,
-        });
+        setIsModalOpen(false);
+        refetch(); // Refetch the list of patients after adding a new patient
       });
-    setIsModalOpen(false);
   };
 
   const columns: ColumnProps<Patient>[] = [
@@ -134,7 +154,7 @@ export const PatientList: FC<Task> = (task) => {
       ),
     },
   ];
-  /** Editable Code END **/
+    /** Editable Code END **/
 
   return (
     <TaskWrapper task={task}>

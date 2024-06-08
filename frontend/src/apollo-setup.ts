@@ -9,7 +9,24 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import omitDeep from "omit-deep-lodash";
 
 /** Editable Code START **/
-const cache = new InMemoryCache();
+// I added a custom cache configuration to handle the 'listPatients' field
+const cache = new InMemoryCache({
+  // Define type policies to customize the behavior of the Apollo Client cache
+  typePolicies: {
+    Query: {
+      fields: {
+        // Customize the caching behavior for the 'listPatients' field
+        listPatients: {
+          // Define a merge function to handle incoming data for the 'listPatients' field
+          merge(existing = [], incoming) {
+            // By default, the merge function returns the incoming data, replacing the existing data
+            return incoming;
+          },
+        },
+      },
+    },
+  },
+});
 /** Editable Code END **/
 
 const httpLink = new HttpLink({
