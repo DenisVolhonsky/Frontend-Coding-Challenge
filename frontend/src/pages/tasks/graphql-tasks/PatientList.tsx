@@ -9,8 +9,8 @@ import { Maybe, Patient } from "@/__generated__/graphql-generated";
 import { TaskWrapper } from "@/components/TaskWrapper";
 import { useQuery, useMutation } from "@apollo/client";
 import { LIST_PATIENTS } from "@/graphql/queries";
-import { CREATE_PATIENT, DELETE_PATIENT } from "@/graphql/mutations";
-import { formatDate } from "@/utils/formatters";
+import { CREATE_PATIENT, UPDATE_PATIENT, DELETE_PATIENT } from "@/graphql/mutations";
+import uuid from "react-uuid";
 
 /**
  * The component `PatientList` consists of a table, a modal to edit a patient and a row expansion.
@@ -81,6 +81,26 @@ export const PatientList: FC<Task> = (task) => {
     },
   });
 
+  const [updatePatient] = useMutation(UPDATE_PATIENT, {
+    update(cache, { data: { updatePatient } }) {
+      const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
+      const newPatients = existingPatients.listPatients.map((patient: Patient) =>
+        patient.id === updatePatient.id ? updatePatient : patient
+      );
+      cache.writeQuery({
+        query: LIST_PATIENTS,
+        data: { listPatients: newPatients },
+      });
+      setPatients(newPatients);
+      notification.success({ message: "Patient updated successfully" });
+    },
+    onError(err) {
+      notification.error({
+        message: `Failed to update patient: ${err.message}`,
+      });
+    },
+  });
+
   if (loading) return <p>Loading....</p>;
   if (error) return <p>Error: {error.message}</p>;
 
@@ -97,7 +117,25 @@ export const PatientList: FC<Task> = (task) => {
   };
 
   const handleSave = (updatedPatient: any) => {
-    // Implement save logic for editing a patient here
+    const formattedPatient = {
+      id: patient?.id,
+      name: {
+        firstName: updatedPatient.firstName,
+        lastName: updatedPatient.lastName,
+        title: patient?.name?.title || "",
+        middleNames: patient?.name?.middleNames || [],
+      },
+      address: {
+        id: patient?.address?.id || uuid(),
+        street: updatedPatient.street,
+        houseNumber: updatedPatient.houseNumber,
+        addition: updatedPatient.addition,
+        city: updatedPatient.city,
+      },
+      dateOfBirth: updatedPatient?.dateOfBirth || null,
+      sex: updatedPatient.sex,
+    };
+    updatePatient({ variables: { patient: formattedPatient } });
     setPatient(null);
   };
 
@@ -115,7 +153,9 @@ export const PatientList: FC<Task> = (task) => {
       key: "birthDate",
       title: "Date of Birth",
       render: (_, record) =>
-        formatDate(record.dateOfBirth)?.format("DD-MM-YYYY") || "N/A",
+        record.dateOfBirth
+      ? new Date(record.dateOfBirth).toLocaleDateString('en-GB')
+      : "N/A",
     },
     {
       key: "sex",
@@ -141,7 +181,8 @@ export const PatientList: FC<Task> = (task) => {
       ),
     },
   ];
-  // Code afrer return I returned to the original state
+  // I returned to the original state code after Editable Code END comment
+  // I removed refetch() and replaced with local cache updates
   /** Editable Code END **/
 
   return (

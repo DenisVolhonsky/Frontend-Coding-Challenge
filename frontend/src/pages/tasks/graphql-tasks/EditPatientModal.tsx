@@ -3,14 +3,13 @@ import {
   Modal,
   Form,
   Input,
-  DatePicker,
   Select,
   Button,
   Space,
   Row,
 } from "antd";
 import { Maybe, Patient } from "@/__generated__/graphql-generated";
-import { buildFullName, formatDate } from "@/utils/formatters";
+import { buildFullName } from "@/utils/formatters";
 
 interface PatientPreviewProps {
   patient: Maybe<Patient>;
@@ -44,17 +43,21 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
   const initialFormValues = {
     firstName: patient?.name?.firstName || "",
     lastName: patient?.name?.lastName || "",
-    dateOfBirth: formatDate(patient?.dateOfBirth) || null,
-    sex: patient?.sex || "",
+    dateOfBirth: patient?.dateOfBirth ? patient.dateOfBirth.split('T')[0] : null, // I cutted time from date
+    sex: patient?.sex || null,
     houseNumber: patient?.address?.houseNumber || "",
     street: patient?.address?.street || "",
     city: patient?.address?.city || "",
     addition: patient?.address?.addition || "",
   };
 
-  // Function to handle form submission
+  // I added function to handle form submission
   const handleFinish = (values: any) => {
-    onSave(values);
+    const formattedValues = {
+      ...values,
+      dateOfBirth: values?.dateOfBirth || null,
+    };
+    onSave({ id: patient?.id, ...formattedValues });
   };
 
   // Effect hook to set form fields based on patient data
@@ -74,9 +77,7 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
       footer={false}
       title={
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          {patient
-            ? patient?.name && buildFullName(patient?.name)
-            : "Add New Patient"}
+          {patient && patient?.name && buildFullName(patient?.name) || ''}
         </div>
       } // Centered title with margin
     >
@@ -95,7 +96,7 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
           <Input />
         </Form.Item>
         <Form.Item label="Date of Birth" name="dateOfBirth">
-          <DatePicker format="DD.MM.YYYY" />
+          <Input type="date" />
         </Form.Item>
         <Form.Item label="Sex" name="sex">
           <Select>

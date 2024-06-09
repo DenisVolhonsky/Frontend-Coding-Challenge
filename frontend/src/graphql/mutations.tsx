@@ -21,3 +21,27 @@ export const CREATE_PATIENT = gql`
     }
   }
 `;
+
+// GraphQL mutation to update a patient
+export const UPDATE_PATIENT = gql`
+  mutation UpdatePatient($patient: PatientInput!) {
+    updatePatient(patient: $patient) {
+      id
+      name {
+        firstName
+        lastName
+        title
+        middleNames
+      }
+      address {
+        id
+        street
+        houseNumber
+        addition
+        city
+      }
+      dateOfBirth
+      sex
+    }
+  }
+`;

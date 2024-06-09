@@ -43,6 +43,14 @@ mutation UpdatePatient($patient: PatientInput!) {
       firstName
       lastName
       title
+      middleNames
+    }
+    address {
+      id
+      street
+      houseNumber
+      addition
+      city
     }
     dateOfBirth
     sex
@@ -55,14 +63,14 @@ mutation DeletePatient($deletePatientId: String) {
 }
 
 # 5. TODO implement the mutation `AddPatient` that creates and empty patient object with just the `id` property set. The backend returns this created patient object.
-  mutation CreatePatient {
-    createPatient {
-      id
-      name {
-        firstName
-        lastName
-      }
-      dateOfBirth
-      sex
+mutation CreatePatient {
+  createPatient {
+    id
+    name {
+      firstName
+      lastName
     }
+    dateOfBirth
+    sex
   }
+}
