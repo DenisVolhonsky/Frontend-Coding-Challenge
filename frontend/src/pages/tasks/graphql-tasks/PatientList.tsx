@@ -23,11 +23,10 @@ import { formatDate } from "@/utils/formatters";
 export const PatientList: FC<Task> = (task) => {
   const [patient, setPatient] = useState<Patient | null>(null);
   /** Editable Code START **/
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [patients, setPatients] = useState<readonly Patient[]>([]);
-  
+
   // I added a query to fetch the list of patients from the server.
-  const { loading, error, data, refetch } = useQuery(LIST_PATIENTS, {
+  const { loading, error, data } = useQuery(LIST_PATIENTS, {
     onCompleted: (data) => {
       // I added a callback to set the fetched patients into local state.
       setPatients(data.listPatients);
@@ -36,12 +35,14 @@ export const PatientList: FC<Task> = (task) => {
 
   // I added a mutation to delete a patient from the server.
   const [deletePatient] = useMutation(DELETE_PATIENT, {
+    // I updated cache after mutation
     update(cache, { data: { deletePatient } }) {
       // I added a cache update to remove the deleted patient from the local cache.
       const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
       const newPatients = existingPatients.listPatients.filter(
-        (p: Patient) => p.id !== deletePatient.id
+        (p: Patient) => p.id !== deletePatient
       );
+      // I updated the local cache to reflect the removal of the patient.
       cache.writeQuery({
         query: LIST_PATIENTS,
         data: { listPatients: newPatients },
@@ -59,10 +60,12 @@ export const PatientList: FC<Task> = (task) => {
 
   // I added a mutation to create a new patient on the server.
   const [createPatient] = useMutation(CREATE_PATIENT, {
+    // I updated cache after mutation
     update(cache, { data: { createPatient } }) {
       // I added a cache update to add the new patient to the local cache.
       const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
       const newPatients = [...existingPatients.listPatients, createPatient];
+      // I updated the local cache with new patient data
       cache.writeQuery({
         query: LIST_PATIENTS,
         data: { listPatients: newPatients },
@@ -78,51 +81,35 @@ export const PatientList: FC<Task> = (task) => {
     },
   });
 
-  useEffect(() => {
-    // I added a useEffect to update local state when data changes.
-    if (data) {
-      setPatients(data.listPatients);
-    }
-  }, [data]);
-
   if (loading) return <p>Loading....</p>;
   if (error) return <p>Error: {error.message}</p>;
 
   const handleDelete = (patientId: Maybe<string>) => {
-    // I added a handler to delete a patient and refetch the list.
-    deletePatient({ variables: { deletePatientId: patientId } })
-      .then(() => {
-        refetch(); // Refetch the list of patients after deletion
-      });
+    deletePatient({ variables: { deletePatientId: patientId } });
   };
 
   const handleEdit = (patient: Patient) => {
-    // I added a handler to set the patient to be edited.
     setPatient(patient);
-    setIsModalOpen(true);
   };
 
   const handleAdd = () => {
-    // I added a handler to prepare the form for adding a new patient.
-    setPatient(null);
-    setIsModalOpen(true);
+    createPatient();
   };
 
-  const handleSave = (values: any) => {
-    // I added a handler to save a new or edited patient and refetch the list.
-    createPatient({ variables: { input: values } })
-      .then(() => {
-        setIsModalOpen(false);
-        refetch(); // Refetch the list of patients after adding a new patient
-      });
+  const handleSave = (updatedPatient: any) => {
+    // Implement save logic for editing a patient here
+    setPatient(null);
   };
 
   const columns: ColumnProps<Patient>[] = [
     {
       key: "name",
       title: "Name",
-      render: (_, record) =>
-        `${record.name?.firstName} ${record.name?.lastName}`,
+      render: (_, record) => {
+        const firstName = record.name?.firstName || "";
+        const lastName = record.name?.lastName || "";
+        return firstName && lastName ? `${firstName} ${lastName}` : "N/A";
+      },
     },
     {
       key: "birthDate",
@@ -133,7 +120,7 @@ export const PatientList: FC<Task> = (task) => {
     {
       key: "sex",
       title: "Sex",
-      dataIndex: "sex",
+      render: (_, record) => record.sex || "N/A",
     },
     {
       key: "actions",
@@ -154,7 +141,8 @@ export const PatientList: FC<Task> = (task) => {
       ),
     },
   ];
-    /** Editable Code END **/
+  // Code afrer return I returned to the original state
+  /** Editable Code END **/
 
   return (
     <TaskWrapper task={task}>
@@ -171,11 +159,8 @@ export const PatientList: FC<Task> = (task) => {
           }}
         />
         <EditPatientModal
-          open={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setPatient(null);
-          }}
+          open={!!patient}
+          onClose={() => setPatient(null)}
           patient={patient}
           onSave={handleSave}
         />

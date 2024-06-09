@@ -9,8 +9,8 @@ mutation DeletePatient($deletePatientId: String) {
 
 // GraphQL mutation to create a patient
 export const CREATE_PATIENT = gql`
-  mutation CreatePatient($input: CreatePatientInput!) {
-    createPatient(input: $input) {
+  mutation CreatePatient {
+    createPatient {
       id
       name {
         firstName

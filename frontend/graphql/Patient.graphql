@@ -50,20 +50,19 @@ mutation UpdatePatient($patient: PatientInput!) {
 }
 
 # 4. TODO implement the mutation `DeletePatient` that deletes the patient with the provided `id`. The backend returns the id of the deleted patient.
-mutation DeletePatient($id: String!) {
-  deletePatient(id: $id)
+mutation DeletePatient($deletePatientId: String) {
+  deletePatient(id: $deletePatientId)
 }
 
 # 5. TODO implement the mutation `AddPatient` that creates and empty patient object with just the `id` property set. The backend returns this created patient object.
-mutation CreatePatient {
-  createPatient {
-    id
-    name {
-      firstName
-      lastName
-      title
+  mutation CreatePatient {
+    createPatient {
+      id
+      name {
+        firstName
+        lastName
+      }
+      dateOfBirth
+      sex
     }
-    dateOfBirth
-    sex
   }
-}
