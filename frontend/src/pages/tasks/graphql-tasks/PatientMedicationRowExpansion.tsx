@@ -1,6 +1,8 @@
 import React, { FC } from "react";
-import { Alert } from "antd";
+import { Alert, Table } from "antd";
 import { Maybe } from "@/__generated__/graphql-generated";
+import { useQuery } from "@apollo/client";
+import { LIST_PATIENT_MEDICATIONS } from "@/graphql/queries";
 
 interface PatientMedicationRowExpansion {
   patientId: Maybe<string>;
@@ -24,6 +26,41 @@ export const PatientMedicationRowExpansion: FC<
   PatientMedicationRowExpansion
 > = ({ patientId }) => {
   /** Editable Code START **/
-  return <Alert type={"error"} message={"TODO"} />;
-  /** Editable Code END **/
+  const { data, loading, error } = useQuery(LIST_PATIENT_MEDICATIONS, {
+    variables: { patientId },
+  });
+
+  if (loading) {
+    return <Alert type="info" message="Loading medications..." />;
+  }
+
+  if (error) {
+    return <Alert type="error" message="Error loading medications" />;
+  }
+
+  const columns = [
+    {
+      title: "NDC Code",
+      dataIndex: "ndcCode",
+      key: "ndcCode",
+      width: '50%',
+      render: (_: any, record: any) => `${record.labeler}-${record.productCode}-${record.packageCode}`,
+    },
+    {
+      title: "Brand",
+      dataIndex: "brand",
+      key: "brand",
+    },
+  ];
+
+  return (
+    <Table
+      rowKey={(record) => `${record.patientId}-${record.labeler}-${record.productCode}-${record.packageCode}`} // unique key for each medication
+      columns={columns}
+      dataSource={data?.listPatientMedications || []}
+      pagination={false}
+      style={{ margin: '0 16px 16px 16px'}}
+    />
+  );
+/** Editable Code END **/
 };
