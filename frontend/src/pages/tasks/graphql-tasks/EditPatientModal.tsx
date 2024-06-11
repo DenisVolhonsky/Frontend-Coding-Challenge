@@ -15,7 +15,7 @@ interface PatientPreviewProps {
   patient: Maybe<Patient>;
   open: boolean;
   onClose: () => void;
-  onSave: (values: any) => void;
+  onSave: (values: Patient) => void;
 }
 
 /**
@@ -43,6 +43,7 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
   const initialFormValues = {
     firstName: patient?.name?.firstName || "",
     lastName: patient?.name?.lastName || "",
+    middleNames: patient?.name?.middleNames || [],
     dateOfBirth: patient?.dateOfBirth ? patient.dateOfBirth.split('T')[0] : null, // I cutted time from date
     sex: patient?.sex || null,
     houseNumber: patient?.address?.houseNumber || "",
@@ -52,10 +53,10 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
   };
 
   // I added function to handle form submission
-  const handleFinish = (values: any) => {
+  const handleFinish = (values: Patient) => {
     const formattedValues = {
       ...values,
-      dateOfBirth: values?.dateOfBirth || null,
+      dateOfBirth: values?.dateOfBirth || null, // Ensure dateOfBirth is explicitly set to null if not provided
     };
     onSave({ id: patient?.id, ...formattedValues });
   };
@@ -67,6 +68,7 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
     } else if (form) {
       form.resetFields();
     }
+  // eslint-disable-next-line    
   }, [patient, form]);
 
   return (
@@ -77,9 +79,9 @@ export const EditPatientModal: FC<PatientPreviewProps> = ({
       footer={false}
       title={
         <div style={{ textAlign: "center", marginBottom: "24px" }}>
-          {patient && patient?.name && buildFullName(patient?.name) || ''}
+          {patient?.name ? buildFullName(patient.name) : ''}
         </div>
-      } // Centered title with margin
+      }
     >
       <Form
         form={form}

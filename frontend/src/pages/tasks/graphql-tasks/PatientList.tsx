@@ -1,4 +1,4 @@
-import React, { FC, useState, useEffect } from "react";
+import React, { FC, useState } from "react";
 import { Task } from "@/index";
 import { Button, notification, Popconfirm, Space, Table } from "antd";
 import { ColumnProps } from "antd/es/table";
@@ -26,17 +26,15 @@ export const PatientList: FC<Task> = (task) => {
   const [patients, setPatients] = useState<readonly Patient[]>([]);
 
   // I added a query to fetch the list of patients from the server.
-  const { loading, error, data } = useQuery(LIST_PATIENTS, {
-    onCompleted: (data) => {
-      // I added a callback to set the fetched patients into local state.
-      setPatients(data.listPatients);
+  const { loading, error } = useQuery(LIST_PATIENTS, {
+    onCompleted: (data) => { // the same as useEffect(() => { if (data) {...} }, [data])
+      setPatients(data.listPatients); // I added a callback to set the fetched patients into local state.
     },
   });
 
   // I added a mutation to delete a patient from the server.
   const [deletePatient] = useMutation(DELETE_PATIENT, {
-    // I updated cache after mutation
-    update(cache, { data: { deletePatient } }) {
+    update(cache, { data: { deletePatient } }) { // I updated cache after mutation
       // I added a cache update to remove the deleted patient from the local cache.
       const existingPatients: any = cache.readQuery({ query: LIST_PATIENTS });
       const newPatients = existingPatients.listPatients.filter(

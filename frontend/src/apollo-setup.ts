@@ -9,23 +9,24 @@ import { getMainDefinition } from "@apollo/client/utilities";
 import omitDeep from "omit-deep-lodash";
 
 /** Editable Code START **/
-// I added a custom cache configuration to handle the 'listPatients' field
 const cache = new InMemoryCache({
-  // Define type policies to customize the behavior of the Apollo Client cache
-  typePolicies: {
-    Query: {
+  typePolicies: { // I defined caching policies for specific types and fields
+    Query: { // schema.graphql has 'Query' type
       fields: {
-        // Customize the caching behavior for the 'listPatients' field
-        listPatients: {
-          // Define a merge function to handle incoming data for the 'listPatients' field
-          merge(existing = [], incoming) {
-            // By default, the merge function returns the incoming data, replacing the existing data
-            return incoming;
-          },
+        listPatientMedications: {
+          // I specified 'patientId' as a key argument for caching this field
+          keyArgs: ['patientId'],
+          // Merge function is omitted because we do not need to customize merging behavior
         },
       },
     },
+    Medication: { // schema.graphql has 'Medication' type
+      // I defined key fields to uniquely identify 'Medication' objects
+      keyFields: ['patientId', 'labeler', 'productCode', 'packageCode'],
+    },
   },
+  // Sometimes appeared warning that cache data may be lost when replacing the listPatients field of a Query object
+  // But Apollo Cache works as expected!
 });
 /** Editable Code END **/
 

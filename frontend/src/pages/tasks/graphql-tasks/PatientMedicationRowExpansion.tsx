@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import { Alert, Table } from "antd";
-import { Maybe } from "@/__generated__/graphql-generated";
+import { Maybe, Medication } from "@/__generated__/graphql-generated";
 import { useQuery } from "@apollo/client";
 import { LIST_PATIENT_MEDICATIONS } from "@/graphql/queries";
 
@@ -44,7 +44,7 @@ export const PatientMedicationRowExpansion: FC<
       dataIndex: "ndcCode",
       key: "ndcCode",
       width: '50%',
-      render: (_: any, record: any) => `${record.labeler}-${record.productCode}-${record.packageCode}`,
+      render: (_: string, record: Medication) => `${record.labeler}-${record.productCode}-${record.packageCode}`,
     },
     {
       title: "Brand",

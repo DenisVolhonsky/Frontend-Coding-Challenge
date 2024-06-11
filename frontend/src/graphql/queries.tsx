@@ -17,9 +17,11 @@ export const LIST_PATIENTS = gql`
 `;
 
 // I added GraphQL query to patient list of medications
+// I added extra patientId value in query for creating unique key for each medication in cache
 export const LIST_PATIENT_MEDICATIONS = gql`
   query ListPatientMedications($patientId: String!) {
     listPatientMedications(patientId: $patientId) {
+      patientId
       labeler
       productCode
       packageCode
