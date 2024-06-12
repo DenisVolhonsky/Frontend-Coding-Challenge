@@ -2,6 +2,13 @@
 fragment PatientOptimized on Patient {
   # TODO: extend the fragment by the required attributes
   sex
+  address {
+    id
+    street
+    houseNumber
+    addition
+    city
+  }
 }
 
 # Must contain all properties
@@ -27,7 +34,6 @@ query ListPatients {
 }
 
 # 2. TODO implement the query `GetPatient` that fetches a patient for the provided `id`
-
 query GetPatient($getPatientId: String!) {
   getPatient(id: $getPatientId) {
     ...Patient
@@ -35,7 +41,6 @@ query GetPatient($getPatientId: String!) {
 }
 
 # 3. TODO implement the mutation `UpdatePatient` that updates a patient object. The backend returns the updated object.
-
 mutation UpdatePatient($patient: PatientInput!) {
   updatePatient(patient: $patient) {
     id

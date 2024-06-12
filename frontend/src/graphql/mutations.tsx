@@ -23,6 +23,7 @@ export const CREATE_PATIENT = gql`
 `;
 
 // GraphQL mutation to update a patient
+// middleNames excluded
 export const UPDATE_PATIENT = gql`
   mutation UpdatePatient($patient: PatientInput!) {
     updatePatient(patient: $patient) {
@@ -31,7 +32,6 @@ export const UPDATE_PATIENT = gql`
         firstName
         lastName
         title
-        middleNames
       }
       address {
         id
