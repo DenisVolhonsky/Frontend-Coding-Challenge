@@ -1,4 +1,4 @@
-# Avelios Medical Frontend Coding Challenge
+# Frontend Coding Challenge
 
 ## Technical Requirements
 
